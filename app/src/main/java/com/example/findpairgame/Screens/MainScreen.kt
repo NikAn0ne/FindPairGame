@@ -16,6 +16,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,7 +32,8 @@ import com.example.findpairgame.R
 import com.example.findpairgame.navigation.Screen
 
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(score: Int?,navController: NavHostController) {
+    var score by remember{ mutableStateOf(score)}
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = Color.White),
@@ -50,7 +55,7 @@ fun MainScreen(navController: NavHostController) {
                 Image(modifier = Modifier
                     .size(42.dp)
                     .padding(end = 4.dp),painter = painterResource(id = R.drawable.coinicon), contentDescription = "")
-                Text(text = "100", fontSize = 32.sp)
+                Text(text = "$score", fontSize = 32.sp)
             }
         }
 
@@ -60,7 +65,8 @@ fun MainScreen(navController: NavHostController) {
                 contentDescription = "test")
         }
 
-        Button(onClick = { navController.navigate(Screen.GameScreen.route) },
+        Button(onClick = {
+            navController.navigate(route = Screen.GameScreen.passScore(score!!)) },
             colors = ButtonDefaults.buttonColors(
             Color.Black)) {
             Text(text = "PLAY", fontSize = 52.sp, color = Color.White)

@@ -43,8 +43,10 @@ import kotlinx.coroutines.delay
 
 
 @Composable
-fun GameScreen(viewModel: PictureViewModel,navController: NavHostController){
-
+fun GameScreen(score: Int?,viewModel: PictureViewModel,navController: NavHostController){
+    var score by remember {
+        mutableStateOf(score?.plus(100) ?: score )
+    }
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = Color.White),
@@ -53,7 +55,8 @@ fun GameScreen(viewModel: PictureViewModel,navController: NavHostController){
     {
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly){
-            Timer(totalTime = 60L * 1000L,
+
+            Timer(totalTime = 1L * 1000L,
                 modifier = Modifier.size(200.dp))
 
 
@@ -61,14 +64,14 @@ fun GameScreen(viewModel: PictureViewModel,navController: NavHostController){
                 Image(modifier = Modifier
                     .size(42.dp)
                     .padding(end = 4.dp),painter = painterResource(id = R.drawable.coinicon), contentDescription = "")
-                Text(text = "100", fontSize = 32.sp)
+                Text(text = "$score", fontSize = 32.sp)
             }
         }
 
 
 
         val cards: List<PictureModel> by viewModel.getPictures().observeAsState(listOf())
-        CardsGrid(cards = cards, viewModel,navController)
+        CardsGrid(cards = cards, viewModel,navController,score!!)
 
 
 
@@ -79,17 +82,17 @@ fun GameScreen(viewModel: PictureViewModel,navController: NavHostController){
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun CardsGrid(cards: List<PictureModel>, viewModel: PictureViewModel,navController: NavHostController){
+private fun CardsGrid(cards: List<PictureModel>, viewModel: PictureViewModel,navController: NavHostController,score: Int){
     LazyVerticalGrid(columns = GridCells.Fixed(4)){
         items(cards.count()){
                 cardIndex ->
-            CardItem(cards[cardIndex], viewModel, navController)
+            CardItem(cards[cardIndex], viewModel, navController, score)
         }
     }
 }
 
 @Composable
-private fun CardItem(picture: PictureModel, viewModel: PictureViewModel,navController: NavHostController){
+private fun CardItem(picture: PictureModel, viewModel: PictureViewModel,navController: NavHostController,score: Int){
     Box(
         modifier = Modifier
             .padding(10.dp)
@@ -105,7 +108,7 @@ private fun CardItem(picture: PictureModel, viewModel: PictureViewModel,navContr
                 )
                 .clickable {
                     if (picture.isVisible) {
-                        viewModel.updateShowVisibleCard(picture.id, navController = navController)
+                        viewModel.updateShowVisibleCard(picture.id, navController = navController, score = score)
                     }
                 }
         ) {
@@ -135,12 +138,12 @@ fun Timer(
         mutableStateOf(totalTime)
     }
     var isTimeRunning by remember {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
     LaunchedEffect(key1 = currentTime, key2 = isTimeRunning){
         if (currentTime>0 && isTimeRunning){
             delay(100L)
-            currentTime -= 100L
+            currentTime += 100L
             value = currentTime / totalTime.toFloat()
         }
 
@@ -152,6 +155,7 @@ fun Timer(
                 size = it
             }
     ) {
+
         Image(painter = painterResource(id = R.drawable.timericon),
             contentDescription = "timer")
         Text(
@@ -160,31 +164,6 @@ fun Timer(
             fontWeight = FontWeight.Bold,
             color = Color.Black
         )
-        Button(
-            onClick = {
-                if (currentTime <=0L) {
-                    currentTime = totalTime
-                    isTimeRunning =true
-
-                }else{
-                    isTimeRunning = !isTimeRunning
-                }
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (!isTimeRunning || currentTime <= 0L) {
-                    Color.Cyan
-                } else {
-                    Color.DarkGray
-                }
-            )
-        )
-        {
-            Text(
-                text = if (isTimeRunning && currentTime > 0L) "Stop"
-                else if (!isTimeRunning && currentTime > 0L) "Start"
-                else "Restart"
-            )
-        }
 
     }
 }

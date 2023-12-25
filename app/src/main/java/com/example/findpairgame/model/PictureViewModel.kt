@@ -13,8 +13,8 @@ class PictureViewModel : ViewModel() {
     fun getPictures(): LiveData<MutableList<PictureModel>>{
         return pictures
     }
-    private fun nextScreen(navController: NavHostController){
-        navController.navigate(Screen.ResultScreen.route)
+    private fun nextScreen(navController: NavHostController, score: Int){
+        navController.navigate(route = Screen.ResultScreen.passScore(score))
     }
 
     fun loadPictures(){
@@ -35,7 +35,7 @@ class PictureViewModel : ViewModel() {
 
     }
 
-    fun updateShowVisibleCard(id: String,navController: NavHostController) {
+    fun updateShowVisibleCard(id: String,navController: NavHostController,score: Int) {
         val selects: List<PictureModel>? = pictures.value?.filter { it -> it.isSelect }
         val selectCount: Int = selects?.size ?: 0
         var charFind: String = "";
@@ -64,7 +64,7 @@ class PictureViewModel : ViewModel() {
 
         val visibleCount: Int = list?.filter { it -> it.isVisible }?.size ?: 0
         if (visibleCount <= 0) {
-            nextScreen(navController)
+            nextScreen(navController, score)
             loadPictures()
             return
         }
