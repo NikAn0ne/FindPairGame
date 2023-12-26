@@ -130,8 +130,7 @@ private fun CardItem(picture: PictureModel, viewModel: PictureViewModel,navContr
                 }
         ) {
             if (picture.isSelect){
-                Text(text = picture.char,
-                    fontSize = 32.sp)
+                Image(modifier = Modifier.size(128.dp),painter = painterResource(id = picture.char), contentDescription = "pct")
             }
 
         }
