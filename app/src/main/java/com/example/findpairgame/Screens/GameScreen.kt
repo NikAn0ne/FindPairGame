@@ -1,5 +1,6 @@
 package com.example.findpairgame.Screens
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,9 +30,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,16 +60,25 @@ fun GameScreen(score: Int?,viewModel: PictureViewModel,navController: NavHostCon
         Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly){
 
-            Timer(totalTime = 1L * 1000L,
-                modifier = Modifier.size(200.dp))
+            score = Timer(totalTime = 1L * 1000L,
+                modifier = Modifier.size(200.dp),
+                score)
 
-
+            Card(modifier = Modifier.size(width = 124.dp, height = 52.dp))
+            {
+                Column(modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color.Gray),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally) {
             Row {
                 Image(modifier = Modifier
                     .size(42.dp)
                     .padding(end = 4.dp),painter = painterResource(id = R.drawable.coinicon), contentDescription = "")
-                Text(text = "$score", fontSize = 32.sp)
+                Text(text = "$score", fontSize = 32.sp, color = Color.White)
             }
+                }
+        }
         }
 
 
@@ -103,12 +116,16 @@ private fun CardItem(picture: PictureModel, viewModel: PictureViewModel,navContr
             modifier = Modifier
                 .size(150.dp)
                 .background(
-                    color = Color.Black.copy(alpha = if (picture.isVisible) 0.4f else 0.0f),
+                    color = Color.Gray.copy(alpha = if (picture.isVisible) 1f else 0.0f),
                     shape = RoundedCornerShape(10.dp)
                 )
                 .clickable {
                     if (picture.isVisible) {
-                        viewModel.updateShowVisibleCard(picture.id, navController = navController, score = score)
+                        viewModel.updateShowVisibleCard(
+                            picture.id,
+                            navController = navController,
+                            score = score
+                        )
                     }
                 }
         ) {
@@ -126,13 +143,19 @@ private fun CardItem(picture: PictureModel, viewModel: PictureViewModel,navContr
 fun Timer(
     totalTime: Long,
     modifier: Modifier = Modifier,
-    initialValue: Float = 1f,
-) {
+     score : Int?
+): Int? {
+    var limit by remember {
+        mutableStateOf(20)
+    }
+    var resultScore by remember {
+        mutableStateOf(score)
+    }
     var size by remember {
         mutableStateOf(IntSize.Zero)
     }
     var value by remember {
-        mutableStateOf(initialValue)
+        mutableStateOf(1f)
     }
     var currentTime by remember {
         mutableStateOf(totalTime)
@@ -145,27 +168,45 @@ fun Timer(
             delay(100L)
             currentTime += 100L
             value = currentTime / totalTime.toFloat()
+
+            if ((currentTime / 1000L).toInt() == limit && resultScore!! > 10){
+                resultScore = resultScore?.minus(5)
+                limit += 20
+
+            }
+
         }
 
     }
+
+
+    Card(modifier = Modifier.size(width = 124.dp, height = 52.dp)) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Gray),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
+
+
     Row(verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        modifier = modifier
-            .onSizeChanged {
-                size = it
-            }
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
 
-        Image(painter = painterResource(id = R.drawable.timericon),
+        Image(modifier = Modifier.size(44.dp),
+            colorFilter = ColorFilter.tint(Color.White),
+            painter = painterResource(id = R.drawable.timericon),
             contentDescription = "timer")
         Text(
             text = (currentTime / 1000L).toString(),
-            fontSize = 44.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black
+            fontSize = 38.sp,
+            color = Color.White
         )
 
     }
+        }
+    }
+    Log.d("score", "$resultScore")
+    return resultScore
 }
 
 fun nextScreen(navController: NavHostController){
